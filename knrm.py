@@ -10,8 +10,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
-glue_qqp_dir = '/data/QQP/'
-glove_path = '/data/glove.6B.50d.txt'
+glue_qqp_dir = '/QQP/'
+glove_path = 'glove.6B.50d.txt'
 
 
 class GaussianKernel(torch.nn.Module):
@@ -155,7 +155,6 @@ class TrainTripletsDataset(RankingDataset):
         }
 
 
-
 class ValPairsDataset(RankingDataset):
     def __getitem__(self, idx: int):
         query_id, doc_id, label = self.index_pairs_or_triplets[idx]
@@ -167,7 +166,6 @@ class ValPairsDataset(RankingDataset):
             'document': torch.tensor(doc_tokens, dtype=torch.long),
             'label': torch.tensor(label, dtype=torch.float)
         }
-
 
 
 def collate_fn(batch_objs: List[Union[Dict[str, torch.Tensor], torch.FloatTensor]]):
@@ -269,9 +267,9 @@ class Solution:
             self.glue_dev_df)
 
         self.val_dataset = ValPairsDataset(self.dev_pairs_for_ndcg,
-              self.idx_to_text_mapping_dev,
-              vocab=self.vocab, oov_val=self.vocab['OOV'],
-              preproc_func=self.simple_preproc)
+                                           self.idx_to_text_mapping_dev,
+                                           vocab=self.vocab, oov_val=self.vocab['OOV'],
+                                           preproc_func=self.simple_preproc)
         self.val_dataloader = torch.utils.data.DataLoader(
             self.val_dataset, batch_size=self.dataloader_bs, num_workers=0,
             collate_fn=collate_fn, shuffle=False)
@@ -337,7 +335,6 @@ class Solution:
                 vector = values[1:]
                 embeddings[word] = vector
         return embeddings
-
 
     def create_glove_emb_from_file(self, file_path: str, inner_keys: List[str],
                                    random_seed: int, rand_uni_bound: float
@@ -512,3 +509,7 @@ class Solution:
 
             if ndcg > 0.925:
                 break
+
+if __name__ == '__main__':
+    solution = Solution(glue_qqp_dir=glue_qqp_dir, glove_vectors_path=glove_path)
+    solution.train(n_epochs=20)
