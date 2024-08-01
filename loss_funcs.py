@@ -18,6 +18,8 @@ def listnet_kl_loss(y_i, z_i):
     P_y_i = torch.softmax(y_i, dim=0)
     P_z_i = torch.softmax(z_i, dim=0)
     return -torch.sum(P_y_i * torch.log(P_z_i/P_y_i))
+
+
 class ListNet(nn.Module):
     def __init__(self, num_input_features, hidden_dim=100):
         super().__init__()
